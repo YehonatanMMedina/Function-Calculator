@@ -1,6 +1,4 @@
 import math
-
-
 def isANumber(str):
     for i in range(len(str)):
         if not str[i].isnumeric():
@@ -108,6 +106,36 @@ class Function:
             return math.sqrt(Func2.calcvalue(x))
         elif self.operation == 'exp':
             return math.exp(Func2.calcvalue(x))
-fun = Function("4*(sin(ln(x)))")
-print(fun.calcvalue(90))
-print(4*math.sin(math.log10(90)))
+    def findDerivative(self):
+        if self.function == "x":
+            return "1"
+        if isANumber(self.function):
+            return "0"
+        #for x^n
+        if self.operation== "+"or self.operation== "-" or self.operation== "*" or self.operation== "/":
+            Func1= Function(self.func1)
+        Func2 = Function(self.func2)
+
+        if self.operation == "+":
+            return Func1.findDerivative() + " + " + Func2.findDerivative()
+        if self.operation == "-":
+            return Func1.findDerivative() + " - " + Func2.findDerivative()
+        if self.operation == "*":
+            return Func1.findDerivative()+" * " + Func2.function + " + " + Func2.findDerivative() + " * " +Func1.function
+        if self.operation == "/":
+            return "(" + Func1.findDerivative()+" * " + Func2.function + " - " + Func2.findDerivative() + " * " +Func1.function + ")" + " / " + "((" +Func2.function+")^2)"
+        if self.operation == 'ln':
+            return " ( " +str(1) + " / " + Func2.function + " ) * " + "(" + Func2.findDerivative() + ")"
+        if self.operation == "sin":
+            return "cos(" + Func2.function + ") * ("+ Func2.findDerivative()+")"
+        if self.operation == "cos":
+            return "-sin(" + Func2.function+ ") * " + "(" + Func2.findDerivative()+ ")"
+        if self.operation == "tan":
+            return "(" +str(1) + " / " + "(cos("+ Func2.function+"))^2" +")" + "*" + "("+ Func2.findDerivative() +")"
+        if self.operation == "sqrt":
+            return "(" + Func2.findDerivative() + ") / (2*sqrt("+Func2.function+"))"
+        if self.operation == "exp":
+            return "("+Func2.findDerivative() + ") / (2*sqrt(" + Func2.function + "))"
+fun = Function("exp(sqrt(sin(6*x)))")
+print(fun.findDerivative())
+
