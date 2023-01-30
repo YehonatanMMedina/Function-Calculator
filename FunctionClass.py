@@ -24,6 +24,10 @@ class Function:
         self.func1=''
         self.func2=''
         self.functionParser()
+        print(self.operation)
+        print(self.func1)
+        print(self.func2)
+
     def functionParser(self):
         counter = 0
 
@@ -54,15 +58,17 @@ class Function:
                 self.placeOfOperation = x - 1
                 self.operation = self.function[0:x]
 
-            isComplexFunc = False
-            if x > 0:
-                isComplexFunc = True
+        isComplexFunc = False
+        if x > 0:
+            isComplexFunc = True
+
 
             self.func1 = self.function[0:self.placeOfOperation]
             self.func2 = self.function[self.placeOfOperation + 1:len(self.function)]
 
-            if isComplexFunc:
-                self.func1 = ''
+        if isComplexFunc:
+            self.func1 = ''
+
     def startingIntLength(self):
         if self.function[0].isnumeric():
             i=0
@@ -108,6 +114,18 @@ class Function:
             return math.sqrt(Func2.calcvalue(x))
         elif self.operation == 'exp':
             return math.exp(Func2.calcvalue(x))
-fun = Function("4*(sin(ln(x)))")
-print(fun.calcvalue(90))
-print(4*math.sin(math.log10(90)))
+    def calcDerivative(self):
+        if isANumber(self.function):
+            return "0"
+        if self.function == "x":
+            return "1"
+        #add for x^n
+        if len(self.func1)!=0:
+            Func1 = Function(self.func1)
+        Func2 = Function(self.func2)
+
+        if self.operation=="+":
+            return Func1.calcDerivative() + " + " + Func2.calcDerivative()
+
+fun = Function("(x)+(5)")
+print(fun.calcvalue(5))
