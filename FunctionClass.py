@@ -22,7 +22,6 @@ class Function:
         self.func1=''
         self.func2=''
         self.functionParser()
-
     def functionParser(self):
         counter = 0
 
@@ -62,7 +61,7 @@ class Function:
 
             if isComplexFunc:
                 self.func1 = ''
-
+           
     def startingIntLength(self):
         if self.function[0].isnumeric():
             i=0
@@ -96,8 +95,6 @@ class Function:
             return float(Func1.calcvalue(x)) * float(Func2.calcvalue(x))
         elif self.operation == '/':
             return float(Func1.calcvalue(x)) / float(Func2.calcvalue(x))
-        elif self.operation == '^':
-            return math.pow(float(Func1.calcvalue(x)),float(Func2.calcvalue(x)))
         elif self.operation=='ln':
             return math.log10(Func2.calcvalue(x))
         elif self.operation=='sin':
@@ -140,6 +137,17 @@ class Function:
             return "(" + Func2.findDerivative() + ") / (2*sqrt("+Func2.function+"))"
         if self.operation == "exp":
             return "("+Func2.findDerivative() + ") / (2*sqrt(" + Func2.function + "))"
-fun = Function("x+2")
-print(fun.calcvalue(2))
+#fun = Function("")
+#print(fun.findDerivative())
 
+print("Welcome to my numeric analasis project")
+function = input("Enter A Function:")
+f= Function(function)
+action=int(input("What do you want to find: 1-value, 2-derivative"))
+if action == 1:
+    x = input("Enter x coordinate")
+    print("The value of the function at x=" +str(x)+ " is:")
+    print(f.calcvalue(x))
+if(action == 2):
+    print("the derivative of the function is:")
+    print(f.findDerivative())
