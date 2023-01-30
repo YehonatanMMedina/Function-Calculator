@@ -14,51 +14,55 @@ def getStartInts(str):
         return i
     else:
         return -1
+
 class Function:
     operation = ' '
     placeOfOperation = -1
 
     def __init__(self, function):
         self.function= function
-        counter =0
+        self.func1=''
+        self.func2=''
+        self.functionParser()
+    def functionParser(self):
+        counter = 0
 
         if self.function[0] == '(':
             for i in range(len(self.function)):
                 if self.function[i] == '(':
-                    counter=counter+1
+                    counter = counter + 1
                 if self.function[i] == ')':
-                    counter=counter-1
+                    counter = counter - 1
                 if counter == 0:
-                    if i+1 != len(self.function):
+                    if i + 1 != len(self.function):
                         self.placeOfOperation = i + 1
-                        self.operation = self.function[i+1]
+                        self.operation = self.function[i + 1]
                     else:
-                        #if (self.function[0] == '(') and (self.function[len(self.function) - 1] == ')'):
+                        # if (self.function[0] == '(') and (self.function[len(self.function) - 1] == ')'):
                         self.function = self.function[1:len(self.function) - 1]
                     break
 
-        x= self.startingIntLength()
-        if len(self.function)!=x and self.function!="x": #if not all of the function is a number
+        x = self.startingIntLength()
+        if len(self.function) != x and self.function != "x":  # if not all of the function is a number
 
-            if x>0 and len(self.function) >1:
+            if x > 0 and len(self.function) > 1:
                 self.placeOfOperation = x
-                self.operation=self.function[x]
+                self.operation = self.function[x]
 
             x = self.startingStringLength()
             if x > 0:
-                self.placeOfOperation = x-1
-                self.operation=self.function[0:x]
+                self.placeOfOperation = x - 1
+                self.operation = self.function[0:x]
 
-            isComplexFunc=False
-            if x>0:
+            isComplexFunc = False
+            if x > 0:
                 isComplexFunc = True
 
             self.func1 = self.function[0:self.placeOfOperation]
-            self.func2 = self.function[self.placeOfOperation+1:len(self.function)]
+            self.func2 = self.function[self.placeOfOperation + 1:len(self.function)]
 
             if isComplexFunc:
-                self.func1=''
-                
+                self.func1 = ''
     def startingIntLength(self):
         if self.function[0].isnumeric():
             i=0
@@ -75,7 +79,6 @@ class Function:
             return i
         else:
             return -1
-
     def calcvalue(self,x):
         if self.function == "x":
             return x
