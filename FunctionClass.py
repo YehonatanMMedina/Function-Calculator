@@ -95,6 +95,8 @@ class Function:
             return float(Func1.calcvalue(x)) * float(Func2.calcvalue(x))
         elif self.operation == '/':
             return float(Func1.calcvalue(x)) / float(Func2.calcvalue(x))
+        elif self.operation == '^':
+            return math.pow(float(Func1.calcvalue(x)),float(Func2.calcvalue(x)))
         elif self.operation=='ln':
             return math.log10(Func2.calcvalue(x))
         elif self.operation=='sin':
@@ -112,7 +114,11 @@ class Function:
             return "1"
         if isANumber(self.function):
             return "0"
-        #for x^n
+        #"x^2"
+        if len(self.function)==5 and self.function[0].isnumeric() and self.function[1]=="*" and self.function[2]=="x" and self.function[3]=="^" and self.function[4].isnumeric():
+                return self.function[0]+" * "+ self.function[4] + " * " + "x^"+ str(int(self.function[4])-1)
+        if len(self.function)==3 and self.function[0]=="x" and self.function[1]=="^" and self.function[2].isnumeric():
+                return self.function[2]+" * x ^"+ str(int(self.function[2])-1)
         if self.operation== "+"or self.operation== "-" or self.operation== "*" or self.operation== "/":
             Func1= Function(self.func1)
         Func2 = Function(self.func2)
@@ -137,8 +143,8 @@ class Function:
             return "(" + Func2.findDerivative() + ") / (2*sqrt("+Func2.function+"))"
         if self.operation == "exp":
             return "("+Func2.findDerivative() + ") / (2*sqrt(" + Func2.function + "))"
-#fun = Function("")
-#print(fun.findDerivative())
+fun = Function("ln(x^2)")
+print(fun.findDerivative())
 
 print("Welcome to my numeric analasis project")
 function = input("Enter A Function:")
