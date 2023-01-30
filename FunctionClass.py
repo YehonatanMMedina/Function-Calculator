@@ -108,6 +108,22 @@ class Function:
             return math.sqrt(Func2.calcvalue(x))
         elif self.operation == 'exp':
             return math.exp(Func2.calcvalue(x))
-fun = Function("4*(sin(ln(x)))")
+    def findDerivative(self):
+        if self.function == "x":
+            return "1"
+        if isANumber(self.function):
+            return "0"
+        #for x^n
+        Func1= Function(self.func1)
+        Func2 = Function(self.func2)
+
+        if self.operation == "+":
+            return Func1.findDerivative() + " + " + Func2.findDerivative()
+        if self.operation == "-":
+            return Func1.findDerivative() + " - " + Func2.findDerivative()
+        if self.operation == "*":
+            return Func1.findDerivative()+" * " +Func2.function + " + " + Func2.findDerivative() + " * " +Func1.function
+fun = Function("x+3")
+#print(fun.findDerivative())
 print(fun.calcvalue(90))
-print(4*math.sin(math.log10(90)))
+#print(4*math.sin(math.log10(90)))
