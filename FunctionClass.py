@@ -26,20 +26,23 @@ class Function:
         counter = 0
 
         if self.function[0] == '(':
-            for i in range(len(self.function)):
-                if self.function[i] == '(':
+            i=0
+            while i<len(self.function)*3:
+
+                if self.function[i%len(self.function)] == '(':
                     counter = counter + 1
-                if self.function[i] == ')':
+                if self.function[i%len(self.function)] == ')':
                     counter = counter - 1
                 if counter == 0:
-                    if i + 1 != len(self.function):
-                        self.placeOfOperation = i + 1
-                        self.operation = self.function[i + 1]
-                    else:
-                        # if (self.function[0] == '(') and (self.function[len(self.function) - 1] == ')'):
-                        self.function = self.function[1:len(self.function) - 1]
-                    break
+                    if (i + 1)%len(self.function) != 0:
+                        self.placeOfOperation = (i + 1)%len(self.function)
+                        self.operation = self.function[(i + 1)%len(self.function)]
+                        break
+                    elif(self.function[0] == '(') and (self.function[len(self.function) - 1] == ')'):
 
+                        self.function = self.function[1:len(self.function) - 1]
+                        i=-1
+                i=i+1
         x = self.startingIntLength()
         if len(self.function) != x and self.function != "x":  # if not all of the function is a number
 
@@ -143,9 +146,38 @@ class Function:
             return "(" + Func2.findDerivative() + ") / (2*sqrt("+Func2.function+"))"
         if self.operation == "exp":
             return "("+Func2.findDerivative() + ") / (2*sqrt(" + Func2.function + "))"
-fun = Function("ln(x^2)")
-print(fun.findDerivative())
 
+    def binary_search(self, low=-10000000, high=10000000):
+
+        # Check base case
+        if high >= low:
+
+            mid = (high + low) / 2
+
+            # If value is exactly in the middle
+            fmid=self.calcvalue(mid)
+            if fmid == 0:
+                return mid
+
+            # If value is smaller than mid, then it can only
+            # be present left in relation to the middle
+            elif fmid > 0:
+                return self.binary_search(low, mid)
+
+            # If value is greater than mid, then it can only
+            # be present right in relation to the middle
+            else:
+                return self.binary_search(mid, high)
+
+        else:
+            # x does not exist
+            return -1
+
+
+
+fun = Function("sin(x)")
+print(fun.binary_search())
+"""
 print("Welcome to my numeric analasis project")
 function = input("Enter A Function:")
 f= Function(function)
@@ -157,3 +189,4 @@ if action == 1:
 if(action == 2):
     print("the derivative of the function is:")
     print(f.findDerivative())
+"""
