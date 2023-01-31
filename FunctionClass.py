@@ -50,10 +50,24 @@ class Function:
                 self.placeOfOperation = x
                 self.operation = self.function[x]
 
-            x = self.startingStringLength()
-            if x > 0:
-                self.placeOfOperation = x - 1
-                self.operation = self.function[0:x]
+            if self.function[0]=='p'and self.function[1]=='i':
+                if len(self.function)!=2:
+                    self.placeOfOperation=2
+                    self.operation = self.function[2]
+            elif self.function[0]=='e':
+                if len(self.function)!=1 and self.function[1]!='x':
+                    self.placeOfOperation=1
+                    self.operation=self.function[1]
+            elif self.function[0]=='x':
+                if len(self.function)!=1:
+                    self.placeOfOperation=1
+                    self.operation=self.function[1]
+            else:
+
+                x = self.startingStringLength()
+                if x > 0:
+                    self.placeOfOperation = x - 1
+                    self.operation = self.function[0:x]
 
             isComplexFunc = False
             if x > 0:
@@ -64,7 +78,7 @@ class Function:
 
             if isComplexFunc:
                 self.func1 = ''
-           
+
     def startingIntLength(self):
         if self.function[0].isnumeric():
             i=0
@@ -84,6 +98,10 @@ class Function:
     def calcvalue(self,x):
         if self.function == "x":
             return x
+        if self.function == "e":
+            return math.e
+        if self.function == "pi":
+            return math.pi
         if isANumber(self.function):
             return float(self.function)
 
@@ -115,39 +133,39 @@ class Function:
     def findDerivative(self):
         if self.function == "x":
             return "1"
-        if isANumber(self.function):
+        if isANumber(self.function) or self.function == "pi" or self.function == "e":
             return "0"
         #"x^2"
         if len(self.function)==5 and self.function[0].isnumeric() and self.function[1]=="*" and self.function[2]=="x" and self.function[3]=="^" and self.function[4].isnumeric():
-                return self.function[0]+" * "+ self.function[4] + " * " + "x^"+ str(int(self.function[4])-1)
+                return self.function[0]+"*"+ self.function[4] + "*" + "x^"+ str(int(self.function[4])-1)
         if len(self.function)==3 and self.function[0]=="x" and self.function[1]=="^" and self.function[2].isnumeric():
-                return self.function[2]+" * x ^"+ str(int(self.function[2])-1)
+                return self.function[2]+"*x^"+ str(int(self.function[2])-1)
         if self.operation== "+"or self.operation== "-" or self.operation== "*" or self.operation== "/":
             Func1= Function(self.func1)
         Func2 = Function(self.func2)
 
         if self.operation == "+":
-            return Func1.findDerivative() + " + " + Func2.findDerivative()
+            return Func1.findDerivative() + "+" + Func2.findDerivative()
         if self.operation == "-":
-            return Func1.findDerivative() + " - " + Func2.findDerivative()
+            return Func1.findDerivative() + "-" + Func2.findDerivative()
         if self.operation == "*":
-            return Func1.findDerivative()+" * " + Func2.function + " + " + Func2.findDerivative() + " * " +Func1.function
+            return Func1.findDerivative()+"*" + Func2.function + "+" + Func2.findDerivative() + "*" +Func1.function
         if self.operation == "/":
-            return "(" + Func1.findDerivative()+" * " + Func2.function + " - " + Func2.findDerivative() + " * " +Func1.function + ")" + " / " + "((" +Func2.function+")^2)"
+            return "(" + Func1.findDerivative()+"*" + Func2.function + "-" + Func2.findDerivative() + "*" +Func1.function + ")" + "/" + "((" +Func2.function+")^2)"
         if self.operation == 'ln':
-            return " ( " +str(1) + " / " + Func2.function + " ) * " + "(" + Func2.findDerivative() + ")"
+            return "(" +str(1) + "/" + Func2.function + ")*"+ "(" + Func2.findDerivative() + ")"
         if self.operation == "sin":
-            return "cos(" + Func2.function + ") * ("+ Func2.findDerivative()+")"
+            return "cos(" + Func2.function + ")*("+ Func2.findDerivative()+")"
         if self.operation == "cos":
-            return "-sin(" + Func2.function+ ") * " + "(" + Func2.findDerivative()+ ")"
+            return "-sin(" + Func2.function+ ")*" + "(" + Func2.findDerivative()+ ")"
         if self.operation == "tan":
-            return "(" +str(1) + " / " + "(cos("+ Func2.function+"))^2" +")" + "*" + "("+ Func2.findDerivative() +")"
+            return "(" +str(1) + "/" + "(cos("+ Func2.function+"))^2" +")" + "*" + "("+ Func2.findDerivative() +")"
         if self.operation == "sqrt":
-            return "(" + Func2.findDerivative() + ") / (2*sqrt("+Func2.function+"))"
+            return "(" + Func2.findDerivative() + ")/(2*sqrt("+Func2.function+"))"
         if self.operation == "exp":
-            return "("+Func2.findDerivative() + ") / (2*sqrt(" + Func2.function + "))"
+            return "("+Func2.findDerivative() + ")/(2*sqrt(" + Func2.function + "))"
 
-    def binary_search(self, low=-10000000, high=10000000):
+    def FRbinary_search(self, low=-10000000, high=10000000):
 
         # Check base case
         if high >= low:
@@ -173,10 +191,24 @@ class Function:
             # x does not exist
             return -1
 
+    def FRnewtonRaphson(self,x=0,epsilon=0.0000000000001):
+
+        valueOfX = self.calcvalue(x) # f(x)
+        if abs(valueOfX)<epsilon:
+            return x
+        derivativeFunctionStr = self.findDerivative()
+        derivativeFunction = Function(derivativeFunctionStr)
+        m= derivativeFunction.calcvalue(x)#derivative at x value
+        b=valueOfX-m*x
+        derivativeRoot = (-b)/m # where will the derivative function tuch the x acsis
+        return self.FRnewtonRaphson(derivativeRoot)
 
 
-fun = Function("sin(x)")
-print(fun.binary_search())
+
+fun = Function("cos(3+x)")
+print(fun.FRnewtonRaphson())
+print(math.sin(3+0.14159265358979303))
+print(math.sin(3))
 """
 print("Welcome to my numeric analasis project")
 function = input("Enter A Function:")
