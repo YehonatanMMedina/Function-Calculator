@@ -12,7 +12,6 @@ def getStartInts(str):
         return i
     else:
         return -1
-
 class Function:
     operation = ' '
     placeOfOperation = -1
@@ -79,6 +78,30 @@ class Function:
             if isComplexFunc:
                 self.func1 = ''
 
+    def newFunctionParser(self):
+        counter = 0
+        for i in range(len(self.function)):
+            if self.function[i] == "(":
+                counter = counter + 1
+            if self.function[i] == ")":
+                counter = counter - 1
+            if counter ==0:
+                if self.function[i]=="+":
+                    self.operation ="+"
+                    self.placeOfOperation=i
+                elif self.function[i]=="-":
+                    self.operation ="-"
+                    self.placeOfOperation=i
+                elif self.function[i] =="*" and not (self.operation == '+' or self.operation == '-'):
+                    self.operation = "*"
+                    self.placeOfOperation = i
+                elif self.function[i] =="/" and not (self.operation == '+' or self.operation == '-'):
+                    self.operation = "/"
+                    self.placeOfOperation = i
+                elif self.function[i].isalpha() and self.function[i]!='x' and not (self.operation == '+' or self.operation == '-') and not (self.operation == '*' or self.operation == '/'):
+                    #function: get next string
+                    #save operation and place of operation and use is complex like above to save func 1 and 2
+            #save the functions
     def startingIntLength(self):
         if self.function[0].isnumeric():
             i=0
@@ -137,23 +160,23 @@ class Function:
             return "0"
         #"x^2"
         if len(self.function)==5 and self.function[0].isnumeric() and self.function[1]=="*" and self.function[2]=="x" and self.function[3]=="^" and self.function[4].isnumeric():
-                return self.function[0]+"*"+ self.function[4] + "*" + "x^"+ str(int(self.function[4])-1)
+                return "(" + self.function[0] + +"*"+ self.function[4] + ")*" + "x^"+ str(int(self.function[4])-1)
         if len(self.function)==3 and self.function[0]=="x" and self.function[1]=="^" and self.function[2].isnumeric():
-                return self.function[2]+"*x^"+ str(int(self.function[2])-1)
+                return "(" + self.function[2]+")*x^"+ str(int(self.function[2])-1)
         if self.operation== "+"or self.operation== "-" or self.operation== "*" or self.operation== "/":
             Func1= Function(self.func1)
         Func2 = Function(self.func2)
 
         if self.operation == "+":
-            return Func1.findDerivative() + "+" + Func2.findDerivative()
+            return "(" + Func1.findDerivative() + ")+" + "(" + Func2.findDerivative() +")"
         if self.operation == "-":
-            return Func1.findDerivative() + "-" + Func2.findDerivative()
+            return "(" + Func1.findDerivative() + ")-(" + Func2.findDerivative() +")"
         if self.operation == "*":
-            return Func1.findDerivative()+"*" + Func2.function + "+" + Func2.findDerivative() + "*" +Func1.function
+            return "(" + Func1.findDerivative()+")*(" + Func2.function + ")+(" + Func2.findDerivative() + ")*(" +Func1.function +")"
         if self.operation == "/":
-            return "(" + Func1.findDerivative()+"*" + Func2.function + "-" + Func2.findDerivative() + "*" +Func1.function + ")" + "/" + "((" +Func2.function+")^2)"
+            return "(" + "(" + Func1.findDerivative()+")*(" + Func2.function + ")-(" + Func2.findDerivative() + ")*(" +Func1.function + "))" + "/" + "((" +Func2.function+")^2)"
         if self.operation == 'ln':
-            return "(" +str(1) + "/" + Func2.function + ")*"+ "(" + Func2.findDerivative() + ")"
+            return "(" +str(1) + "/" +"("+ Func2.function + ")" + ")*"+ "(" + Func2.findDerivative() + ")"
         if self.operation == "sin":
             return "cos(" + Func2.function + ")*("+ Func2.findDerivative()+")"
         if self.operation == "cos":
@@ -205,10 +228,11 @@ class Function:
 
 
 
-fun = Function("cos(3+x)")
-print(fun.FRnewtonRaphson())
-print(math.sin(3+0.14159265358979303))
-print(math.sin(3))
+fun = Function("(3)*(4)+(3)")
+print(fun.calcvalue(3))
+#print(fun.FRnewtonRaphson())
+#print(math.sin(3+0.14159265358979303))
+#print(math.sin(3))
 """
 print("Welcome to my numeric analasis project")
 function = input("Enter A Function:")
