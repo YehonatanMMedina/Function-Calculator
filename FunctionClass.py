@@ -1,7 +1,23 @@
 import math
+def clearMinuses(str):
+    for i in range(len(str)-1):
+        if(str[i]=='+'):
+            if str[i+1]=='-':
+                str = str[0:i] + '-' + str[i+2:len(str)]
+        if(str[i]=='*'):
+            if str[i+1]=='-':
+                x = getIntFromThisIndex(str,i+2)
+                if len(x) ==0:
+                    str = str[0:i] + "*(-1)" + str[i + 2 + len(x):len(str)]
+                else:
+                    str = str[0:i] + "*(-" + str[i+2:i+2+len(x)]+")"+str[i+2+len(x):len(str)]
+    return str
 def isANumber(str):
+    if len(str) == 0:
+        return False
+
     for i in range(len(str)):
-        if not str[i].isnumeric():
+        if not (str[i].isnumeric() or str[i]=='.' or(str[i] =='-' and not str[i-1].isnumeric())):
             return False
     return True
 def getStartInts(str):
@@ -34,8 +50,12 @@ class Function:
 
     def newFunctionParser(self):
         counter = 0
-        if self.canRemoveSograim():
+        while self.canRemoveSograim():
             self.function = self.function[1:len(self.function)-1]
+        if len(self.function) != 0:
+            if self.function[0]=='-':
+                self.function = "(" + self.function +")"
+
         for i in range(len(self.function)):
             if self.function[i] == "(":
                 counter = counter + 1
@@ -64,6 +84,7 @@ class Function:
                         self.placeOfOperation = i + len(self.operation) -1
         self.func1 = self.function[0:self.placeOfOperation]
         self.func2 = self.function[self.placeOfOperation + 1:len(self.function)]
+
         if self.operation == "sin" or self.operation == "cos" or self.operation == "tan" or self.operation == "exp" or self.operation == "ln":
             self.func1=""
 
@@ -122,6 +143,9 @@ class Function:
             return math.exp(Func2.calcvalue(x))
     def canRemoveSograim(self):
         counter = 0
+        if len(self.function)==0:
+            return False
+
         if self.function[0] =="(" and self.function[len(self.function)-1]==")":
             for i in range(1,len(self.function)-2):
                 if self.function[i] == "(":
@@ -135,6 +159,8 @@ class Function:
         if self.function == "x":
             return "1"
         if isANumber(self.function) or self.function == "pi" or self.function == "e":
+            return "0"
+        if isANumber(self.function[1:len(self.function)-2]) and self.function[0]=="(" and self.function[len(self.function)-1]==")":
             return "0"
         #"x^2"
         if len(self.function)==5 and self.function[0].isnumeric() and self.function[1]=="*" and self.function[2]=="x" and self.function[3]=="^" and self.function[4].isnumeric():
@@ -166,6 +192,75 @@ class Function:
         if self.operation == "exp":
             return "("+Func2.findDerivative() + ")/(2*sqrt(" + Func2.function + "))"
 
+    def simplifyFunction(self):
+        if "+-" in self.function:
+            index = self.function.index("+-")
+            self.function = self.function[0:index] + "-" + self.function[index+2:len(self.function)]
+        if self.function == "x":
+            return 'x'
+        if self.function == "e":
+            return str(math.e)
+        if self.function == "pi":
+            return str(math.pi)
+        if isANumber(self.function) :
+            return str(self.function)
+
+        if len(self.func1)!=0:
+            Func1 = Function(self.func1)
+        Func2 = Function(self.func2)
+
+        if self.operation == "+":
+            if isANumber(Func1.function) and isANumber(Func2.function):
+                return str(float(Func1.function) + float(Func2.function))
+        if self.operation == "-":
+            if isANumber(Func1.function) and isANumber(Func2.function):
+                return str(float(Func1.function) - float(Func2.function))
+        if self.operation == "/":
+            if isANumber(Func1.function) and isANumber(Func2.function):
+                return str(float(Func1.function) / float(Func2.function))
+        if self.operation == "*":
+            if isANumber(Func1.function) and isANumber(Func2.function):
+                return str(float(Func1.function) * float(Func2.function))
+        if self.operation == "^":
+            if isANumber(Func1.function) and isANumber(Func2.function):
+                return str(math.pow(float(Func1.function), float(Func2.function)))
+        if self.operation == "sin":
+            if isANumber(Func2.function):
+                return str(math.sin(float(Func2.function)))
+        if self.operation == "ln":
+            if isANumber(Func2.function):
+                return str(math.log10(float(Func2.function)))
+        if self.operation == "cos":
+            if isANumber(Func2.function):
+                return str(math.cos(float(Func2.function)))
+        if self.operation == "tan":
+            if isANumber(Func2.function):
+                return str(math.tan(float(Func2.function)))
+        if self.operation == "exp":
+            if isANumber(Func2.function):
+                return str(math.exp(float(Func2.function)))
+        if self.operation == '+':
+            return Func1.simplifyFunction() + "+" + Func2.simplifyFunction()
+        elif self.operation == '-':
+            return Func1.simplifyFunction() +"-"+ Func2.simplifyFunction()
+        elif self.operation == '*':
+            return Func1.simplifyFunction() + "*" + Func2.simplifyFunction()
+        elif self.operation == '/':
+            return Func1.simplifyFunction() + "/" + Func2.simplifyFunction()
+        elif self.operation == '^':
+            return Func1.simplifyFunction() + "^" + Func2.simplifyFunction()
+        elif self.operation=='ln':
+            return "ln(" + Func2.simplifyFunction()+")"
+        elif self.operation == 'sin':
+            return "sin(" + Func2.simplifyFunction() + ")"
+        elif self.operation == 'cos':
+            return "cos(" + Func2.simplifyFunction() + ")"
+        elif self.operation == 'tan':
+            return "tan(" + Func2.simplifyFunction() + ")"
+        elif self.operation == 'sqrt':
+            return "sqrt(" + Func2.simplifyFunction() + ")"
+        elif self.operation == 'exp':
+            return "exp(" + Func2.simplifyFunction() + ")"
     def FRbinary_search(self, low=-10000000, high=10000000):
 
         # Check base case
@@ -192,27 +287,28 @@ class Function:
             # x does not exist
             return -1
 
-    def FRnewtonRaphson(self,x=0,epsilon=0.0000000000001):
+    def FRnewtonRaphson(self,x=2,epsilon=0.0000000000001):
 
         valueOfX = self.calcvalue(x) # f(x)
         if abs(valueOfX)<epsilon:
             return x
-        derivativeFunctionStr = self.findDerivative()
+        derivativeFunctionStr =clearMinuses(self.findDerivative())
         derivativeFunction = Function(derivativeFunctionStr)
         m= derivativeFunction.calcvalue(x)#derivative at x value
-        b=valueOfX-m*x
-        derivativeRoot = (-b)/m # where will the derivative function tuch the x acsis
-        return self.FRnewtonRaphson(derivativeRoot)
+        nextx = x - valueOfX/m
+        return self.FRnewtonRaphson(nextx)
+    
 
 
-
-fun = Function("ln(2*x)")
+fun = Function("ln(x)*sin(x)+cos(x)")
 print(fun.findDerivative())
-print(math.sin(math.log10(100)*2)/4)
-print(fun.func1)
-print(fun.func2)
-print(fun.operation)
+#d=Function(fun.simplifyFunction())
+print(fun.calcvalue(fun.FRnewtonRaphson()))
 """
+
+
+
+
 print("Welcome to my numeric analasis project")
 function = input("Enter A Function:")
 f= Function(function)
