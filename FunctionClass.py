@@ -12,6 +12,16 @@ def getStartInts(str):
         return i
     else:
         return -1
+def getStringStartingFromThisIndex(function, i):
+    n=i
+    while i < len(function) and function[i].isalpha():
+        i=i+1
+    return function[n:i]
+def getIntFromThisIndex(function, i):
+    n=i
+    while i < len(function) and function[i].isnumeric():
+        i=i+1
+    return function[n:i]
 class Function:
     operation = ' '
     placeOfOperation = -1
@@ -20,66 +30,12 @@ class Function:
         self.function= function
         self.func1=''
         self.func2=''
-        self.functionParser()
-    def functionParser(self):
-        counter = 0
-
-        if self.function[0] == '(':
-            i=0
-            while i<len(self.function)*3:
-
-                if self.function[i%len(self.function)] == '(':
-                    counter = counter + 1
-                if self.function[i%len(self.function)] == ')':
-                    counter = counter - 1
-                if counter == 0:
-                    if (i + 1)%len(self.function) != 0:
-                        self.placeOfOperation = (i + 1)%len(self.function)
-                        self.operation = self.function[(i + 1)%len(self.function)]
-                        break
-                    elif(self.function[0] == '(') and (self.function[len(self.function) - 1] == ')'):
-
-                        self.function = self.function[1:len(self.function) - 1]
-                        i=-1
-                i=i+1
-        x = self.startingIntLength()
-        if len(self.function) != x and self.function != "x":  # if not all of the function is a number
-
-            if x > 0 and len(self.function) > 1:
-                self.placeOfOperation = x
-                self.operation = self.function[x]
-
-            if self.function[0]=='p'and self.function[1]=='i':
-                if len(self.function)!=2:
-                    self.placeOfOperation=2
-                    self.operation = self.function[2]
-            elif self.function[0]=='e':
-                if len(self.function)!=1 and self.function[1]!='x':
-                    self.placeOfOperation=1
-                    self.operation=self.function[1]
-            elif self.function[0]=='x':
-                if len(self.function)!=1:
-                    self.placeOfOperation=1
-                    self.operation=self.function[1]
-            else:
-
-                x = self.startingStringLength()
-                if x > 0:
-                    self.placeOfOperation = x - 1
-                    self.operation = self.function[0:x]
-
-            isComplexFunc = False
-            if x > 0:
-                isComplexFunc = True
-
-            self.func1 = self.function[0:self.placeOfOperation]
-            self.func2 = self.function[self.placeOfOperation + 1:len(self.function)]
-
-            if isComplexFunc:
-                self.func1 = ''
+        self.newFunctionParser()
 
     def newFunctionParser(self):
         counter = 0
+        if self.canRemoveSograim():
+            self.function = self.function[1:len(self.function)-1]
         for i in range(len(self.function)):
             if self.function[i] == "(":
                 counter = counter + 1
@@ -98,10 +54,20 @@ class Function:
                 elif self.function[i] =="/" and not (self.operation == '+' or self.operation == '-'):
                     self.operation = "/"
                     self.placeOfOperation = i
-                elif self.function[i].isalpha() and self.function[i]!='x' and not (self.operation == '+' or self.operation == '-') and not (self.operation == '*' or self.operation == '/'):
-                    #function: get next string
-                    #save operation and place of operation and use is complex like above to save func 1 and 2
-            #save the functions
+                elif self.function[i]=="^"  and not (self.operation == '+' or self.operation == '-') and not (self.operation == '*' or self.operation == '/'):
+                    self.operation ="^"
+                    self.placeOfOperation = i
+                elif self.function[i].isalpha() and self.function[i]!='x' and not (self.operation == '+' or self.operation == '-') and not (self.operation == '*' or self.operation == '/') and not (self.operation=='^'):
+                    candidateOperation = getStringStartingFromThisIndex(self.function,i)
+                    if candidateOperation == "sin" or candidateOperation == "cos" or candidateOperation== "tan" or candidateOperation == "exp"or candidateOperation == "ln":
+                        self.operation = candidateOperation
+                        self.placeOfOperation = i + len(self.operation) -1
+        self.func1 = self.function[0:self.placeOfOperation]
+        self.func2 = self.function[self.placeOfOperation + 1:len(self.function)]
+        if self.operation == "sin" or self.operation == "cos" or self.operation == "tan" or self.operation == "exp" or self.operation == "ln":
+            self.func1=""
+
+
     def startingIntLength(self):
         if self.function[0].isnumeric():
             i=0
@@ -119,13 +85,14 @@ class Function:
         else:
             return -1
     def calcvalue(self,x):
+
         if self.function == "x":
             return x
         if self.function == "e":
             return math.e
         if self.function == "pi":
             return math.pi
-        if isANumber(self.function):
+        if isANumber(self.function) :
             return float(self.function)
 
         if len(self.func1)!=0:
@@ -153,6 +120,17 @@ class Function:
             return math.sqrt(Func2.calcvalue(x))
         elif self.operation == 'exp':
             return math.exp(Func2.calcvalue(x))
+    def canRemoveSograim(self):
+        counter = 0
+        if self.function[0] =="(" and self.function[len(self.function)-1]==")":
+            for i in range(1,len(self.function)-2):
+                if self.function[i] == "(":
+                    counter = counter + 1
+                if self.function[i] == ")":
+                    counter = counter - 1
+                if counter < 0:
+                    return False
+            return True
     def findDerivative(self):
         if self.function == "x":
             return "1"
@@ -168,9 +146,9 @@ class Function:
         Func2 = Function(self.func2)
 
         if self.operation == "+":
-            return "(" + Func1.findDerivative() + ")+" + "(" + Func2.findDerivative() +")"
+            return Func1.findDerivative() + "+" + Func2.findDerivative()
         if self.operation == "-":
-            return "(" + Func1.findDerivative() + ")-(" + Func2.findDerivative() +")"
+            return Func1.findDerivative() + "-" + Func2.findDerivative()
         if self.operation == "*":
             return "(" + Func1.findDerivative()+")*(" + Func2.function + ")+(" + Func2.findDerivative() + ")*(" +Func1.function +")"
         if self.operation == "/":
@@ -228,11 +206,12 @@ class Function:
 
 
 
-fun = Function("(3)*(4)+(3)")
-print(fun.calcvalue(3))
-#print(fun.FRnewtonRaphson())
-#print(math.sin(3+0.14159265358979303))
-#print(math.sin(3))
+fun = Function("ln(2*x)")
+print(fun.findDerivative())
+print(math.sin(math.log10(100)*2)/4)
+print(fun.func1)
+print(fun.func2)
+print(fun.operation)
 """
 print("Welcome to my numeric analasis project")
 function = input("Enter A Function:")
