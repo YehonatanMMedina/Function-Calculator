@@ -115,6 +115,8 @@ class Function:
             return math.pi
         if isANumber(self.function) :
             return float(self.function)
+        if self.function[0] == "(" and self.function[len(self.function)-1]==")" and isANumber(self.function[1:len(self.function)-2]):
+            return float(self.function[1:len(self.function)-1])
 
         if len(self.func1)!=0:
             Func1 = Function(self.func1)
@@ -192,76 +194,7 @@ class Function:
         if self.operation == "exp":
             return "("+Func2.findDerivative() + ")/(2*sqrt(" + Func2.function + "))"
 
-    def simplifyFunction(self):
-        if "+-" in self.function:
-            index = self.function.index("+-")
-            self.function = self.function[0:index] + "-" + self.function[index+2:len(self.function)]
-        if self.function == "x":
-            return 'x'
-        if self.function == "e":
-            return str(math.e)
-        if self.function == "pi":
-            return str(math.pi)
-        if isANumber(self.function) :
-            return str(self.function)
-
-        if len(self.func1)!=0:
-            Func1 = Function(self.func1)
-        Func2 = Function(self.func2)
-
-        if self.operation == "+":
-            if isANumber(Func1.function) and isANumber(Func2.function):
-                return str(float(Func1.function) + float(Func2.function))
-        if self.operation == "-":
-            if isANumber(Func1.function) and isANumber(Func2.function):
-                return str(float(Func1.function) - float(Func2.function))
-        if self.operation == "/":
-            if isANumber(Func1.function) and isANumber(Func2.function):
-                return str(float(Func1.function) / float(Func2.function))
-        if self.operation == "*":
-            if isANumber(Func1.function) and isANumber(Func2.function):
-                return str(float(Func1.function) * float(Func2.function))
-        if self.operation == "^":
-            if isANumber(Func1.function) and isANumber(Func2.function):
-                return str(math.pow(float(Func1.function), float(Func2.function)))
-        if self.operation == "sin":
-            if isANumber(Func2.function):
-                return str(math.sin(float(Func2.function)))
-        if self.operation == "ln":
-            if isANumber(Func2.function):
-                return str(math.log10(float(Func2.function)))
-        if self.operation == "cos":
-            if isANumber(Func2.function):
-                return str(math.cos(float(Func2.function)))
-        if self.operation == "tan":
-            if isANumber(Func2.function):
-                return str(math.tan(float(Func2.function)))
-        if self.operation == "exp":
-            if isANumber(Func2.function):
-                return str(math.exp(float(Func2.function)))
-        if self.operation == '+':
-            return Func1.simplifyFunction() + "+" + Func2.simplifyFunction()
-        elif self.operation == '-':
-            return Func1.simplifyFunction() +"-"+ Func2.simplifyFunction()
-        elif self.operation == '*':
-            return Func1.simplifyFunction() + "*" + Func2.simplifyFunction()
-        elif self.operation == '/':
-            return Func1.simplifyFunction() + "/" + Func2.simplifyFunction()
-        elif self.operation == '^':
-            return Func1.simplifyFunction() + "^" + Func2.simplifyFunction()
-        elif self.operation=='ln':
-            return "ln(" + Func2.simplifyFunction()+")"
-        elif self.operation == 'sin':
-            return "sin(" + Func2.simplifyFunction() + ")"
-        elif self.operation == 'cos':
-            return "cos(" + Func2.simplifyFunction() + ")"
-        elif self.operation == 'tan':
-            return "tan(" + Func2.simplifyFunction() + ")"
-        elif self.operation == 'sqrt':
-            return "sqrt(" + Func2.simplifyFunction() + ")"
-        elif self.operation == 'exp':
-            return "exp(" + Func2.simplifyFunction() + ")"
-    def FRbinary_search(self, low=-10000000, high=10000000):
+    def FRbinary_search(self, low=-10000000, high=10000000,epsilon=0.001 ,counter=0):
 
         # Check base case
         if high >= low:
@@ -270,24 +203,26 @@ class Function:
 
             # If value is exactly in the middle
             fmid=self.calcvalue(mid)
-            if fmid == 0:
+            if abs(fmid) <epsilon:
                 return mid
 
             # If value is smaller than mid, then it can only
             # be present left in relation to the middle
             elif fmid > 0:
-                return self.binary_search(low, mid)
+                print(counter)
+                return self.FRbinary_search(low, mid,epsilon,counter+1)
 
             # If value is greater than mid, then it can only
             # be present right in relation to the middle
             else:
-                return self.binary_search(mid, high)
+                print(counter)
+                return self.FRbinary_search(mid, high,epsilon,counter+1)
 
         else:
             # x does not exist
             return -1
 
-    def FRnewtonRaphson(self,x=2,epsilon=0.0000000000001):
+    def FRnewtonRaphson(self,x=68,epsilon=0.000000001):
 
         valueOfX = self.calcvalue(x) # f(x)
         if abs(valueOfX)<epsilon:
@@ -296,17 +231,29 @@ class Function:
         derivativeFunction = Function(derivativeFunctionStr)
         m= derivativeFunction.calcvalue(x)#derivative at x value
         nextx = x - valueOfX/m
-        return self.FRnewtonRaphson(nextx)
-    
 
+        return self.FRnewtonRaphson(nextx,epsilon)
 
-fun = Function("ln(x)*sin(x)+cos(x)")
+    def FRslope(self,lowx=-500,highx=705,epsilon=0.000000001,counter=0):
+
+        lowy=self.calcvalue(lowx)
+        highy=self.calcvalue(highx)
+        #finding the slopes: m,b || y=mx+b
+        m=(highy-lowy)/(highx-lowx)
+        b= highy-m*highx
+        x0 = (-b)/m # נקודת החיתוך של הישר עם ציר הx
+        fx0 = self.calcvalue(x0)
+        if(abs(fx0)<epsilon):
+            return x0
+        if fx0 > 0:
+            lowx=x0
+        else:
+            highx=x0
+        return self.FRslope(lowx,highx,epsilon,counter+1)
+fun = Function("sin((-5)*4)")
 print(fun.findDerivative())
-#d=Function(fun.simplifyFunction())
-print(fun.calcvalue(fun.FRnewtonRaphson()))
+    
 """
-
-
 
 
 print("Welcome to my numeric analasis project")
