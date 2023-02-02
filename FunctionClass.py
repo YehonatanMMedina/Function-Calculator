@@ -1,4 +1,7 @@
 import math
+import numpy as np
+import matplotlib as mpl
+import matplotlib.pyplot as plt
 def clearMinuses(str):
     for i in range(len(str)-1):
         if(str[i]=='+'):
@@ -13,6 +16,7 @@ def clearMinuses(str):
                     str = str[0:i] + "*(-" + str[i+2:i+2+len(x)]+")"+str[i+2+len(x):len(str)]
     return str
 def isANumber(str):
+
     if len(str) == 0:
         return False
 
@@ -132,7 +136,7 @@ class Function:
         elif self.operation == '^':
             return math.pow(float(Func1.calcvalue(x)),float(Func2.calcvalue(x)))
         elif self.operation=='ln':
-            return math.log10(Func2.calcvalue(x))
+            return math.log((Func2.calcvalue(x)),math.e)
         elif self.operation=='sin':
             return math.sin(Func2.calcvalue(x))
         elif self.operation == 'cos':
@@ -222,7 +226,7 @@ class Function:
             # x does not exist
             return -1
 
-    def FRnewtonRaphson(self,x=68,epsilon=0.000000001):
+    def FRnewtonRaphson(self,x=2,epsilon=0.000000001):
 
         valueOfX = self.calcvalue(x) # f(x)
         if abs(valueOfX)<epsilon:
@@ -250,21 +254,70 @@ class Function:
         else:
             highx=x0
         return self.FRslope(lowx,highx,epsilon,counter+1)
-fun = Function("sin((-5)*4)")
-print(fun.findDerivative())
-    
-"""
 
+    def definiteIntegralTRP(self,a,b,devideTo):
+        step = (b-a)/devideTo
+        p1 = a
+        p2 = a+ step
+        sum = 0
+        for i in range(devideTo):
+            fp2=self.calcvalue(p2)
+            fp1= self.calcvalue(p1)
+            space = (fp1+fp2)*0.5 * step
+            sum = sum +space
+            p1 = p1+step
+            p2= p2+step
+        return sum
+    def definiteIntegralREC(self,a,b,devideTo):
+        step = (b-a)/devideTo
+        p1 = a
+        p2 = a + step
+        sum = 0
+        for i in range(devideTo):
+            mid = (p1+p2)/2
+            fmid = self.calcvalue(mid)
+            space = fmid * step
+            sum = sum +space
+            p1 = p1+step
+            p2= p2+step
+        return sum
+
+    def printGraph(self,start,finnish,points):
+        y = np.zeros(points)
+        x = np.linspace(start, finnish, points)
+        for i in range(points):
+            y[i] = self.calcvalue(x[i])
+
+        print('x', x)
+        print('y', y)
+        plt.plot(x, y)
+        plt.show()
 
 print("Welcome to my numeric analasis project")
 function = input("Enter A Function:")
 f= Function(function)
-action=int(input("What do you want to find: 1-value, 2-derivative"))
-if action == 1:
-    x = input("Enter x coordinate")
-    print("The value of the function at x=" +str(x)+ " is:")
-    print(f.calcvalue(x))
-if(action == 2):
-    print("the derivative of the function is:")
-    print(f.findDerivative())
-"""
+isUsing = True
+while isUsing:
+    action = int(input("What do you want to find 1-value, 2-derivative, 3-Root, 4- definite integral, 5- graph:"))
+    if action == 1:
+        x = input("Enter x coordinate")
+        print("The value of the function at x=" +str(x)+ " is:")
+        print(f.calcvalue(x))
+    if(action == 2):
+        print("the derivative of the function is:")
+        print(clearMinuses(f.findDerivative()))
+    if action == 3:
+        print("one root of the function is:")
+        print(f.FRnewtonRaphson())
+    if action == 4:
+        start= int(input("enter the start of the integration area"))
+        end= int(input("enter the end of the integration area"))
+        print(f.definiteIntegralTRP(start,end,10000))
+    if action == 5:
+        start = int(input("enter the x value for the start of the graph"))
+        end = int(input("enter the x value for the end of the graph"))
+        f.printGraph(start,end,100*abs(start-end))
+    userRespose = int(input("Would you like to try another operation on this function or enter a new one 1-another operation 2-leave:"))
+    if userRespose==2:
+        print("Thank you for trying my project!")
+        isUsing = False
